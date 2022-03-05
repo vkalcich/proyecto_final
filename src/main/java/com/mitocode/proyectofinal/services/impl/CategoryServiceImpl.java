@@ -4,12 +4,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mitocode.proyectofinal.dtos.CategoryDto;
 import com.mitocode.proyectofinal.entities.Category;
+import com.mitocode.proyectofinal.exceptions.ResourceNotFoundException;
 import com.mitocode.proyectofinal.repositories.CategoryRepository;
 import com.mitocode.proyectofinal.services.CategoryService;
 
@@ -38,9 +38,18 @@ public class CategoryServiceImpl implements CategoryService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<CategoryDto> getAll() {
 		List<Category> categorias = this.categoryRepository.findAll();
 		return categorias.stream().map(entity -> modelMapper.map(entity, CategoryDto.class)).collect(Collectors.toList());
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public CategoryDto getById(Long id) {
+		Category category = this.categoryRepository.findById(id).
+				orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
+		return this.modelMapper.map(category, CategoryDto.class);
 	}
 
 }
