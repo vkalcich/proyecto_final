@@ -1,5 +1,6 @@
 package com.mitocode.proyectofinal.repositories;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,4 +18,6 @@ public interface ProductRepository extends JpaRepository<Product, Long>{
 	
 	@Query("SELECT p from Product p where LOWER(name) = LOWER(?1)")
 	Optional<List<Product>> findByNameIgnoreCase(@Param("name") String name);
+	
+	Optional<List<Product>> findByDueDateLessThan(@Param("dueDate") LocalDate dueDate);
 }

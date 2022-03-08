@@ -1,5 +1,6 @@
 package com.mitocode.proyectofinal.controllers;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -49,6 +50,13 @@ public class ProductController {
 	@GetMapping("/{name}")
 	public ResponseEntity<List<ProductDto>> findByNameIgnoreCase(String name) {
 		List<ProductDto> products = productService.findByNameIgnoreCase(name);
+		return new ResponseEntity<List<ProductDto>>(products, HttpStatus.OK);
+	}
+	
+	@ApiOperation(value = "Obtiene productos vencidos")
+	@GetMapping("/{dueDate}")
+	public ResponseEntity<List<ProductDto>> findBydueDate(String dueDate) {
+		List<ProductDto> products = productService.findByDueDate(LocalDate.parse(dueDate));
 		return new ResponseEntity<List<ProductDto>>(products, HttpStatus.OK);
 	}
 	

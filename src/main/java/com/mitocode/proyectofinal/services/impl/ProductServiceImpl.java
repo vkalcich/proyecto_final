@@ -1,5 +1,6 @@
 package com.mitocode.proyectofinal.services.impl;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,6 +57,15 @@ public class ProductServiceImpl implements ProductService {
 	public List<ProductDto> findByNameIgnoreCase(String name) {
 		List<Product> products = this.productRepository.findByNameIgnoreCase(name).
 				orElseThrow(() -> new ResourceNotFoundException("Product", "name", name));
+			return  products.stream()
+	                .map(entity -> this.modelMapper.map(entity, ProductDto.class))
+	                .collect(Collectors.toList());
+	}
+	
+	@Override
+	public List<ProductDto> findByDueDate(LocalDate dueDate) {
+		List<Product> products = this.productRepository.findByDueDateLessThan(dueDate).
+				orElseThrow(() -> new ResourceNotFoundException("Product", "dueDate", dueDate.toString()));
 			return  products.stream()
 	                .map(entity -> this.modelMapper.map(entity, ProductDto.class))
 	                .collect(Collectors.toList());

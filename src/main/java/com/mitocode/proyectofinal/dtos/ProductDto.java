@@ -1,5 +1,7 @@
 package com.mitocode.proyectofinal.dtos;
 
+import java.time.LocalDate;
+
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,6 +24,8 @@ public class ProductDto {
 	private Double price;
 	@ApiModelProperty(notes = "Descripcion del producto", name = "descripcion")
 	private String description;
+	@ApiModelProperty(notes = "Indica si el producto esta vencido", name = "fecha vencimiento")
+	private LocalDate dueDate;
 	@ApiModelProperty(notes = "Indica si el producto esta habilitado", name = "habilitado")
 	private boolean enabled;
 	
