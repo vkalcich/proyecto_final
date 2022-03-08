@@ -1,7 +1,10 @@
 package com.mitocode.proyectofinal.entities;
 
+import java.time.LocalDate;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -9,7 +12,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,11 +27,11 @@ public class Product {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@ManyToOne
-	@JoinColumn(name = "id_catogory", referencedColumnName = "id", nullable = false)
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "id_category", referencedColumnName = "id", nullable = false)
 	private Category category;
 	
-	@Column(length = 100)
+	@Column(length = 100, unique = true)
 	private String name;
 	
 	@Column(precision = 5, scale = 2)
@@ -37,6 +39,8 @@ public class Product {
 	
 	@Column(length = 200)
 	private String description;
+	
+	private LocalDate dueDate;
 	
 	private boolean enabled;
 }

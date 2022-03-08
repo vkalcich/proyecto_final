@@ -48,7 +48,7 @@ public class CategoryServiceImpl implements CategoryService {
 	@Transactional(readOnly = true)
 	public CategoryDto getById(Long id) {
 		Category category = this.categoryRepository.findById(id).
-				orElseThrow(() -> new ResourceNotFoundException("Category", "id", id));
+				orElseThrow(() -> new ResourceNotFoundException("Category", "id", id.toString()));
 		return this.modelMapper.map(category, CategoryDto.class);
 	}
 

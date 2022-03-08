@@ -1,5 +1,7 @@
 package com.mitocode.proyectofinal.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,10 +31,11 @@ public class ProductController {
 		this.productService = productService;
 	}
 	
-	@GetMapping
-	public ResponseEntity<String> saludar() {
-		String saludo = productService.saludar();
-		return new ResponseEntity<String>(saludo, HttpStatus.OK);
+	@ApiOperation(value = "Obtiene un producto filtrando por id")
+	@GetMapping("/{id}")
+	public ResponseEntity<ProductDto> findById(Long id) {
+		ProductDto product = productService.findById(id);
+		return new ResponseEntity<ProductDto>(product, HttpStatus.OK);
 	}
 	
 	@ApiOperation(value = "Crea un producto")
@@ -41,4 +44,12 @@ public class ProductController {
 		ProductDto newProductDto = this.productService.create(productDto);
 		return new ResponseEntity<ProductDto>(newProductDto, HttpStatus.CREATED);
 	}
+	
+	@ApiOperation(value = "Obtiene un producto filtrando por nombre ignorando mayusculas y minusculas")
+	@GetMapping("/{name}")
+	public ResponseEntity<List<ProductDto>> findByNameIgnoreCase(String name) {
+		List<ProductDto> products = productService.findByNameIgnoreCase(name);
+		return new ResponseEntity<List<ProductDto>>(products, HttpStatus.OK);
+	}
+	
 }
