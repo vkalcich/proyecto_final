@@ -1,15 +1,22 @@
 package com.mitocode.proyectofinal.controllers;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mitocode.proyectofinal.dtos.ProductDto;
@@ -23,6 +30,7 @@ import lombok.Setter;
 @RequestMapping("/api/products")
 @Getter
 @Setter
+@PropertySource("classpath:message.properties")
 public class ProductController {
 	
 	@Qualifier(value = "productService")
@@ -38,6 +46,13 @@ public class ProductController {
 		ProductDto product = productService.findById(id);
 		return new ResponseEntity<ProductDto>(product, HttpStatus.OK);
 	}
+	/*
+	@ApiOperation(value = "Obtiene todos los productos")
+	@GetMapping()
+	public ResponseEntity<List<ProductDto>> findAll() {
+		List<ProductDto> products = productService.findAll();
+		return new ResponseEntity<List<ProductDto>>(products, HttpStatus.OK);
+	}*/
 	
 	@ApiOperation(value = "Crea un producto")
 	@PostMapping
@@ -56,7 +71,39 @@ public class ProductController {
 	@ApiOperation(value = "Obtiene productos vencidos")
 	@GetMapping("/{dueDate}")
 	public ResponseEntity<List<ProductDto>> findBydueDate(String dueDate) {
-		List<ProductDto> products = productService.findByDueDate(LocalDate.parse(dueDate));
+		List<ProductDto> products;
+		try {
+			 products = productService.findByDueDate(LocalDate.parse(dueDate));
+		} catch(DateTimeParseException e) {
+			return new ResponseEntity<List<ProductDto>>(new ArrayList<ProductDto>(), HttpStatus.BAD_REQUEST);
+		}
+		return new ResponseEntity<List<ProductDto>>(products, HttpStatus.OK);
+	}
+	
+	@Value("${update.message}")
+	private String updateMessage;
+	
+	@ApiOperation(value = "Actualiza un producto")
+	@PutMapping
+	public ResponseEntity<String> update(@RequestBody ProductDto productDto){
+		this.productService.update(productDto);
+		return new ResponseEntity<String>(updateMessage, HttpStatus.OK);
+	}
+	
+	@Value("${delete.message}")
+	private String deleteMessage;
+	
+	@ApiOperation(value = "Elimina un producto filtrando por id")
+	@DeleteMapping("/{id}")
+	public ResponseEntity<String> deleteById(Long id) {
+		productService.deleteById(id);
+		return new ResponseEntity<String>(deleteMessage, HttpStatus.OK);
+	}
+	
+	@ApiOperation(value = "Obtiene un producto filtrando por id de categoria")
+	@GetMapping
+	public ResponseEntity<List<ProductDto>> findByCategoryId(@RequestParam Long categoryId) {
+		List<ProductDto> products = productService.findByCategoryId(categoryId);
 		return new ResponseEntity<List<ProductDto>>(products, HttpStatus.OK);
 	}
 	

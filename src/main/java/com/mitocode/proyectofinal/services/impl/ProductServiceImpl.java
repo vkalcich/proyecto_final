@@ -2,6 +2,7 @@ package com.mitocode.proyectofinal.services.impl;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -40,6 +41,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public ProductDto findById(Long id) {
 		Product product = this.productRepository.findById(id).
 			orElseThrow(() -> new ResourceNotFoundException("Product", "id", id.toString()));
@@ -47,6 +49,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public ProductDto findByName(String name) {
 		Product product = this.productRepository.findByName(name).
 				orElseThrow(() -> new ResourceNotFoundException("Product", "name", name));
@@ -54,6 +57,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public List<ProductDto> findByNameIgnoreCase(String name) {
 		List<Product> products = this.productRepository.findByNameIgnoreCase(name).
 				orElseThrow(() -> new ResourceNotFoundException("Product", "name", name));
@@ -63,6 +67,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public List<ProductDto> findByDueDate(LocalDate dueDate) {
 		List<Product> products = this.productRepository.findByDueDateLessThan(dueDate).
 				orElseThrow(() -> new ResourceNotFoundException("Product", "dueDate", dueDate.toString()));
@@ -70,5 +75,46 @@ public class ProductServiceImpl implements ProductService {
 	                .map(entity -> this.modelMapper.map(entity, ProductDto.class))
 	                .collect(Collectors.toList());
 	}
+
+	@Override
+	public void update(ProductDto productDto) {
+		Optional<Product> optionalProduct = this.productRepository.findById(productDto.getId());
+		if (optionalProduct.isPresent()) {
+			Product product = optionalProduct.get();
+			product = this.modelMapper.map(productDto, Product.class);
+			this.productRepository.save(product);
+		} else {
+			throw new ResourceNotFoundException("Product", "id", productDto.getId().toString());
+		}
+	}
+
+	@Override
+	public void deleteById(Long id) {
+		Optional<Product> optionalProduct = this.productRepository.findById(id);
+		if (optionalProduct.isPresent()) {
+			this.productRepository.delete(optionalProduct.get());
+		} else {
+			throw new ResourceNotFoundException("Product", "id", id.toString());
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<ProductDto> findAll() {
+		List<Product> products = this.productRepository.findAll();
+		return products.stream()
+		        .map(entity -> this.modelMapper.map(entity, ProductDto.class))
+		        .collect(Collectors.toList());
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<ProductDto> findByCategoryId(Long id) {
+		List<Product> products = this.productRepository.findByCategoryId(id)
+									.orElseThrow(() -> new ResourceNotFoundException("Product", "categoryID", id.toString()));
+		return products.stream().map(entity -> this.modelMapper.map(entity, ProductDto.class)).collect(Collectors.toList());
+	}
+	
+	
 	
 }
