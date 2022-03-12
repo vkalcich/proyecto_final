@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mitocode.proyectofinal.dtos.ProductDto;
 import com.mitocode.proyectofinal.services.ProductService;
+import com.mitocode.proyectofinal.utils.PageResponse;
 
 import io.swagger.annotations.ApiOperation;
 import lombok.Getter;
@@ -46,13 +47,15 @@ public class ProductController {
 		ProductDto product = productService.findById(id);
 		return new ResponseEntity<ProductDto>(product, HttpStatus.OK);
 	}
-	/*
+	
 	@ApiOperation(value = "Obtiene todos los productos")
 	@GetMapping()
-	public ResponseEntity<List<ProductDto>> findAll() {
-		List<ProductDto> products = productService.findAll();
-		return new ResponseEntity<List<ProductDto>>(products, HttpStatus.OK);
-	}*/
+	public ResponseEntity<PageResponse<ProductDto>> findAll(@RequestParam(defaultValue = "0")Integer pageNumber,
+													@RequestParam(defaultValue = "10")Integer pageSize,
+													@RequestParam(defaultValue = "id")String sortBy) {
+		PageResponse<ProductDto> products = productService.findAll(pageNumber, pageSize, sortBy);
+		return new ResponseEntity<PageResponse<ProductDto>>(products, HttpStatus.OK);
+	}
 	
 	@ApiOperation(value = "Crea un producto")
 	@PostMapping
@@ -100,11 +103,13 @@ public class ProductController {
 		return new ResponseEntity<String>(deleteMessage, HttpStatus.OK);
 	}
 	
-	@ApiOperation(value = "Obtiene un producto filtrando por id de categoria")
-	@GetMapping
-	public ResponseEntity<List<ProductDto>> findByCategoryId(@RequestParam Long categoryId) {
-		List<ProductDto> products = productService.findByCategoryId(categoryId);
-		return new ResponseEntity<List<ProductDto>>(products, HttpStatus.OK);
+	@ApiOperation(value = "Obtiene una lista de productos filtrando por id de categoria")
+	@GetMapping("/{categoryId}")
+	public ResponseEntity<PageResponse<ProductDto>> findByCategoryId(Long categoryId, @RequestParam(defaultValue = "0")Integer pageNumber,
+																			  @RequestParam(defaultValue = "10")Integer pageSize,
+																			  @RequestParam(defaultValue = "id")String sortBy) {
+		PageResponse<ProductDto> products = productService.findByCategoryId(categoryId, pageNumber, pageSize, sortBy);
+		return new ResponseEntity<PageResponse<ProductDto>>(products, HttpStatus.OK);
 	}
 	
 }

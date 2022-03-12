@@ -6,6 +6,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +18,8 @@ import com.mitocode.proyectofinal.entities.Product;
 import com.mitocode.proyectofinal.exceptions.ResourceNotFoundException;
 import com.mitocode.proyectofinal.repositories.ProductRepository;
 import com.mitocode.proyectofinal.services.ProductService;
+import com.mitocode.proyectofinal.utils.PageResponse;
+import com.mitocode.proyectofinal.utils.PageResponseBuilder;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -26,11 +32,13 @@ public class ProductServiceImpl implements ProductService {
 
 	private ModelMapper modelMapper;
 	private ProductRepository productRepository;
+	private PageResponseBuilder<Product, ProductDto> pageResponseBuilder;
 	
-	public ProductServiceImpl(ModelMapper modelMapper, ProductRepository productRepository) {
+	public ProductServiceImpl(ModelMapper modelMapper, ProductRepository productRepository, PageResponseBuilder<Product, ProductDto> pageResponseBuilder) {
 		this.modelMapper = modelMapper;
 		modelMapper.typeMap(Product.class, ProductDto.class).addMapping(Product::getCategory, ProductDto::setCategoryDto);
 		this.productRepository = productRepository;
+		this.pageResponseBuilder = pageResponseBuilder;
 	}
 
 	@Override
@@ -100,19 +108,52 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<ProductDto> findAll() {
-		List<Product> products = this.productRepository.findAll();
-		return products.stream()
-		        .map(entity -> this.modelMapper.map(entity, ProductDto.class))
-		        .collect(Collectors.toList());
+	public PageResponse<ProductDto> findAll(Integer pageNumber, Integer pageSize, String sortBy) {
+		
+		Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy));
+		
+		Page<Product> page = this.productRepository.findAll(paging);
+		
+		List<ProductDto> productsDto;
+		
+		PageResponse<ProductDto> pageResponse = new PageResponse<ProductDto>();
+		
+		if (page.hasContent()) {
+			productsDto = page.getContent().stream()
+					        .map(entity -> this.modelMapper.map(entity, ProductDto.class))
+					        .collect(Collectors.toList());
+			
+			pageResponseBuilder.createPageResponse(page, pageResponse, productsDto);
+		} else {
+			throw new ResourceNotFoundException("Product", "page", pageNumber.toString());
+		}
+		
+		return pageResponse;
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<ProductDto> findByCategoryId(Long id) {
-		List<Product> products = this.productRepository.findByCategoryId(id)
-									.orElseThrow(() -> new ResourceNotFoundException("Product", "categoryID", id.toString()));
-		return products.stream().map(entity -> this.modelMapper.map(entity, ProductDto.class)).collect(Collectors.toList());
+	public PageResponse<ProductDto> findByCategoryId(Long id, Integer pageNumber, Integer pageSize, String sortBy) {
+		
+		Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy));
+		
+		Page<Product> page = this.productRepository.findByCategoryId(id, paging);
+		
+		List<ProductDto> products;
+		
+		PageResponse<ProductDto> pageResponse = new PageResponse<ProductDto>();
+		
+		if (page.hasContent()) {
+			products = page.getContent().stream()
+					.map(entity -> this.modelMapper.map(entity, ProductDto.class)).collect(Collectors.toList());
+			
+			pageResponseBuilder.createPageResponse(page, pageResponse, products);
+			
+		} else {
+		
+			throw new ResourceNotFoundException("Product", "categoryID", id.toString());
+		}
+		return pageResponse;
 	}
 	
 	

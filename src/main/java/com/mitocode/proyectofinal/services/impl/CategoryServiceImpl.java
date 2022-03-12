@@ -4,6 +4,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +16,8 @@ import com.mitocode.proyectofinal.entities.Category;
 import com.mitocode.proyectofinal.exceptions.ResourceNotFoundException;
 import com.mitocode.proyectofinal.repositories.CategoryRepository;
 import com.mitocode.proyectofinal.services.CategoryService;
+import com.mitocode.proyectofinal.utils.PageResponse;
+import com.mitocode.proyectofinal.utils.PageResponseBuilder;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -24,10 +30,12 @@ public class CategoryServiceImpl implements CategoryService {
 
 	private CategoryRepository categoryRepository;
 	private ModelMapper modelMapper;
+	private PageResponseBuilder<Category, CategoryDto> pageResponseBuilder;
 	
-	public CategoryServiceImpl(CategoryRepository categoryRepository, ModelMapper modelMapper) {
+	public CategoryServiceImpl(CategoryRepository categoryRepository, ModelMapper modelMapper, PageResponseBuilder<Category, CategoryDto> pageResponseBuilder) {
 		this.categoryRepository = categoryRepository;
 		this.modelMapper = modelMapper;
+		this.pageResponseBuilder = pageResponseBuilder;
 	}
 	
 	@Override
@@ -39,9 +47,23 @@ public class CategoryServiceImpl implements CategoryService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CategoryDto> getAll() {
-		List<Category> categorias = this.categoryRepository.findAll();
-		return categorias.stream().map(entity -> modelMapper.map(entity, CategoryDto.class)).collect(Collectors.toList());
+	public PageResponse<CategoryDto> getAll(Integer pageNo, Integer pageSize, String sortBy) {
+		Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
+		
+		Page<Category> pagedResult = this.categoryRepository.findAll(paging);
+		List<CategoryDto> categories = null;
+		PageResponse<CategoryDto> pageResponse = new PageResponse<>();
+		
+		if (pagedResult.hasContent()) {
+			categories = pagedResult.getContent().
+					stream().map(entity -> this.modelMapper.map(entity, CategoryDto.class)).collect(Collectors.toList());
+			
+			pageResponseBuilder.createPageResponse(pagedResult, pageResponse, categories);
+		} else {
+			throw new ResourceNotFoundException("Category", "all", "");
+		}
+		
+		return pageResponse;
 	}
 
 	@Override

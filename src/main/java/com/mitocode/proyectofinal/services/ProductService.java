@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.mitocode.proyectofinal.dtos.ProductDto;
+import com.mitocode.proyectofinal.utils.PageResponse;
 
 public interface ProductService {
 
@@ -11,7 +12,7 @@ public interface ProductService {
 
 	ProductDto findById(Long id);
 	
-	List<ProductDto> findAll();
+	PageResponse<ProductDto> findAll(Integer pageNumber, Integer pageSize, String sortBy);
 
 	ProductDto findByName(String name);
 	
@@ -23,5 +24,5 @@ public interface ProductService {
 
 	void deleteById(Long id);
 
-	List<ProductDto> findByCategoryId(Long id);
+	PageResponse<ProductDto> findByCategoryId(Long id, Integer pageNumber, Integer pageSize, String sortBy);
 }
