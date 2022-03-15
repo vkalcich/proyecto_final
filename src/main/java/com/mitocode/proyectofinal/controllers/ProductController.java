@@ -5,8 +5,9 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,7 +60,7 @@ public class ProductController {
 	
 	@ApiOperation(value = "Crea un producto")
 	@PostMapping
-	public ResponseEntity<ProductDto> create(@RequestBody ProductDto productDto){
+	public ResponseEntity<ProductDto> create(@Valid @RequestBody ProductDto productDto){
 		ProductDto newProductDto = this.productService.create(productDto);
 		return new ResponseEntity<ProductDto>(newProductDto, HttpStatus.CREATED);
 	}
@@ -83,24 +84,19 @@ public class ProductController {
 		return new ResponseEntity<List<ProductDto>>(products, HttpStatus.OK);
 	}
 	
-	@Value("${update.message}")
-	private String updateMessage;
-	
 	@ApiOperation(value = "Actualiza un producto")
 	@PutMapping
-	public ResponseEntity<String> update(@RequestBody ProductDto productDto){
+	public ResponseEntity<ProductDto> update(@RequestBody ProductDto productDto){
 		this.productService.update(productDto);
-		return new ResponseEntity<String>(updateMessage, HttpStatus.OK);
+		return new ResponseEntity<ProductDto>(productDto, HttpStatus.OK);
 	}
 	
-	@Value("${delete.message}")
-	private String deleteMessage;
 	
 	@ApiOperation(value = "Elimina un producto filtrando por id")
 	@DeleteMapping("/{id}")
-	public ResponseEntity<String> deleteById(Long id) {
+	public HttpStatus deleteById(Long id) {
 		productService.deleteById(id);
-		return new ResponseEntity<String>(deleteMessage, HttpStatus.OK);
+		return HttpStatus.NO_CONTENT;
 	}
 	
 	@ApiOperation(value = "Obtiene una lista de productos filtrando por id de categoria")
