@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -39,6 +40,24 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
         body.put("errors", errors);
 
         return new ResponseEntity<>(body, headers, status);
+	}
+	
+	@ExceptionHandler(ResourceNotFoundException.class)
+	public ResponseEntity<Object> handleResourceNotFoundException
+			(ResourceNotFoundException exception, WebRequest webRequest){
 		
+		LocalDateTime now = LocalDateTime.now();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+
+		Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", now.format(formatter));
+        body.put("status", HttpStatus.NOT_FOUND);
+
+        String errors = exception.getMessage();
+
+        body.put("errors", errors);
+		
+		return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
 	}
 }
