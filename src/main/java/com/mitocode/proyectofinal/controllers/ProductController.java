@@ -6,13 +6,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,6 +38,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @PropertySource("classpath:message.properties")
+@Validated
 public class ProductController {
 	
 	@Qualifier(value = "productService")
@@ -44,7 +50,7 @@ public class ProductController {
 	
 	@ApiOperation(value = "Obtiene un producto filtrando por id")
 	@GetMapping("/{id}")
-	public ResponseEntity<ProductDto> findById(Long id) {
+	public ResponseEntity<ProductDto> findById(@PathVariable @Min(1) Long id) {
 		ProductDto product = productService.findById(id);
 		return new ResponseEntity<ProductDto>(product, HttpStatus.OK);
 	}
@@ -67,14 +73,14 @@ public class ProductController {
 	
 	@ApiOperation(value = "Obtiene un producto filtrando por nombre ignorando mayusculas y minusculas")
 	@GetMapping("/{name}")
-	public ResponseEntity<List<ProductDto>> findByNameIgnoreCase(String name) {
+	public ResponseEntity<List<ProductDto>> findByNameIgnoreCase(@Size(min = 4) @RequestParam String name) {
 		List<ProductDto> products = productService.findByNameIgnoreCase(name);
 		return new ResponseEntity<List<ProductDto>>(products, HttpStatus.OK);
 	}
 	
 	@ApiOperation(value = "Obtiene productos vencidos")
 	@GetMapping("/{dueDate}")
-	public ResponseEntity<List<ProductDto>> findBydueDate(String dueDate) {
+	public ResponseEntity<List<ProductDto>> findBydueDate(@NotNull @RequestParam String dueDate) {
 		List<ProductDto> products;
 		try {
 			 products = productService.findByDueDate(LocalDate.parse(dueDate));
@@ -86,7 +92,7 @@ public class ProductController {
 	
 	@ApiOperation(value = "Actualiza un producto")
 	@PutMapping
-	public ResponseEntity<ProductDto> update(@RequestBody ProductDto productDto){
+	public ResponseEntity<ProductDto> update(@Valid @RequestBody ProductDto productDto){
 		this.productService.update(productDto);
 		return new ResponseEntity<ProductDto>(productDto, HttpStatus.OK);
 	}
@@ -100,11 +106,11 @@ public class ProductController {
 	}
 	
 	@ApiOperation(value = "Obtiene una lista de productos filtrando por id de categoria")
-	@GetMapping("/{categoryId}")
-	public ResponseEntity<PageResponse<ProductDto>> findByCategoryId(Long categoryId, @RequestParam(defaultValue = "0")Integer pageNumber,
+	@GetMapping("/category/{id}")
+	public ResponseEntity<PageResponse<ProductDto>> findByCategoryId(Long id, @RequestParam(defaultValue = "0")Integer pageNumber,
 																			  @RequestParam(defaultValue = "10")Integer pageSize,
 																			  @RequestParam(defaultValue = "id")String sortBy) {
-		PageResponse<ProductDto> products = productService.findByCategoryId(categoryId, pageNumber, pageSize, sortBy);
+		PageResponse<ProductDto> products = productService.findByCategoryId(id, pageNumber, pageSize, sortBy);
 		return new ResponseEntity<PageResponse<ProductDto>>(products, HttpStatus.OK);
 	}
 	
