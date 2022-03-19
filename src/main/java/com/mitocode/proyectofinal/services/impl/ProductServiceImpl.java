@@ -17,6 +17,7 @@ import com.mitocode.proyectofinal.dtos.ProductDto;
 import com.mitocode.proyectofinal.entities.Product;
 import com.mitocode.proyectofinal.exceptions.ResourceNotFoundException;
 import com.mitocode.proyectofinal.repositories.ProductRepository;
+import com.mitocode.proyectofinal.repositories.specifications.ProductSpecification;
 import com.mitocode.proyectofinal.services.ProductService;
 import com.mitocode.proyectofinal.utils.PageResponse;
 import com.mitocode.proyectofinal.utils.PageResponseBuilder;
@@ -33,12 +34,15 @@ public class ProductServiceImpl implements ProductService {
 	private ModelMapper modelMapper;
 	private ProductRepository productRepository;
 	private PageResponseBuilder<Product, ProductDto> pageResponseBuilder;
+	private ProductSpecification productSpecification;
 	
-	public ProductServiceImpl(ModelMapper modelMapper, ProductRepository productRepository, PageResponseBuilder<Product, ProductDto> pageResponseBuilder) {
+	public ProductServiceImpl(ModelMapper modelMapper, ProductRepository productRepository, 
+			PageResponseBuilder<Product, ProductDto> pageResponseBuilder, ProductSpecification productSpecification) {
 		this.modelMapper = modelMapper;
 		modelMapper.typeMap(Product.class, ProductDto.class).addMapping(Product::getCategory, ProductDto::setCategoryDto);
 		this.productRepository = productRepository;
 		this.pageResponseBuilder = pageResponseBuilder;
+		this.productSpecification = productSpecification;
 	}
 
 	@Override
@@ -108,11 +112,11 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public PageResponse<ProductDto> findAll(Integer pageNumber, Integer pageSize, String sortBy) {
+	public PageResponse<ProductDto> findAll(ProductDto productDto, Integer pageNumber, Integer pageSize, String sortBy) {
 		
 		Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy));
 		
-		Page<Product> page = this.productRepository.findAll(paging);
+		Page<Product> page = this.productRepository.findAll(productSpecification.getByFilters(productDto), paging);
 		
 		List<ProductDto> productsDto;
 		

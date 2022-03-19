@@ -1,20 +1,14 @@
 package com.mitocode.proyectofinal.controllers;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,7 +32,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @PropertySource("classpath:message.properties")
-@Validated
 public class ProductController {
 	
 	@Qualifier(value = "productService")
@@ -50,17 +43,23 @@ public class ProductController {
 	
 	@ApiOperation(value = "Obtiene un producto filtrando por id")
 	@GetMapping("/{id}")
-	public ResponseEntity<ProductDto> findById(@PathVariable @Min(1) Long id) {
+	public ResponseEntity<ProductDto> findById(@PathVariable Long id) {
 		ProductDto product = productService.findById(id);
 		return new ResponseEntity<ProductDto>(product, HttpStatus.OK);
 	}
 	
 	@ApiOperation(value = "Obtiene todos los productos")
 	@GetMapping()
-	public ResponseEntity<PageResponse<ProductDto>> findAll(@RequestParam(defaultValue = "0")Integer pageNumber,
+	public ResponseEntity<PageResponse<ProductDto>> findAll(@RequestParam(defaultValue = "") String name,
+													@RequestParam(defaultValue = "") String description,
+													@RequestParam(defaultValue = "") Double price,
+													@RequestParam(defaultValue = "") @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate dueDate,
+													@RequestParam(defaultValue = "") Boolean enabled,
+													@RequestParam(defaultValue = "0")Integer pageNumber,
 													@RequestParam(defaultValue = "10")Integer pageSize,
 													@RequestParam(defaultValue = "id")String sortBy) {
-		PageResponse<ProductDto> products = productService.findAll(pageNumber, pageSize, sortBy);
+		ProductDto productDto = new ProductDto(null, null, name, price, description, dueDate, enabled == null ? true : enabled);
+		PageResponse<ProductDto> products = productService.findAll(productDto, pageNumber, pageSize, sortBy);
 		return new ResponseEntity<PageResponse<ProductDto>>(products, HttpStatus.OK);
 	}
 	
@@ -70,17 +69,17 @@ public class ProductController {
 		ProductDto newProductDto = this.productService.create(productDto);
 		return new ResponseEntity<ProductDto>(newProductDto, HttpStatus.CREATED);
 	}
-	
+	/*
 	@ApiOperation(value = "Obtiene un producto filtrando por nombre ignorando mayusculas y minusculas")
 	@GetMapping("/{name}")
-	public ResponseEntity<List<ProductDto>> findByNameIgnoreCase(@Size(min = 4) @RequestParam String name) {
+	public ResponseEntity<List<ProductDto>> findByNameIgnoreCase(@RequestParam String name) {
 		List<ProductDto> products = productService.findByNameIgnoreCase(name);
 		return new ResponseEntity<List<ProductDto>>(products, HttpStatus.OK);
 	}
 	
 	@ApiOperation(value = "Obtiene productos vencidos")
 	@GetMapping("/{dueDate}")
-	public ResponseEntity<List<ProductDto>> findBydueDate(@NotNull @RequestParam String dueDate) {
+	public ResponseEntity<List<ProductDto>> findBydueDate(@RequestParam String dueDate) {
 		List<ProductDto> products;
 		try {
 			 products = productService.findByDueDate(LocalDate.parse(dueDate));
@@ -88,7 +87,7 @@ public class ProductController {
 			return new ResponseEntity<List<ProductDto>>(new ArrayList<ProductDto>(), HttpStatus.BAD_REQUEST);
 		}
 		return new ResponseEntity<List<ProductDto>>(products, HttpStatus.OK);
-	}
+	}*/
 	
 	@ApiOperation(value = "Actualiza un producto")
 	@PutMapping

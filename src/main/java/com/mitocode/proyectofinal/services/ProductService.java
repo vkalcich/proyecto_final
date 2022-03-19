@@ -12,7 +12,7 @@ public interface ProductService {
 
 	ProductDto findById(Long id);
 	
-	PageResponse<ProductDto> findAll(Integer pageNumber, Integer pageSize, String sortBy);
+	PageResponse<ProductDto> findAll(ProductDto productDto, Integer pageNumber, Integer pageSize, String sortBy);
 
 	ProductDto findByName(String name);
 	
