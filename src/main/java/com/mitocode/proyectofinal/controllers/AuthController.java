@@ -58,12 +58,20 @@ public class AuthController {
 	
 	@ApiOperation(value = "Creacion un usuario")
 	@PostMapping("/signup")
-	public ResponseEntity<UserDto> create(@RequestBody SignUpDto signUpDto){
-		
-		UserDto userDto = this.userService.findUserByUsernameOrEmail(signUpDto.getUsername(), signUpDto.getEmail());
-		
-		
-		UserDto newUserDto = this.userService.save(userDto);
+	public ResponseEntity<?> create(@RequestBody SignUpDto signUpDto) {
+		Boolean usernameExists = this.userService.existsUserByUsername(signUpDto.getUsername());
+		if (usernameExists) {
+			return new ResponseEntity<>("Username is already taken!", HttpStatus.BAD_REQUEST);
+		}
+		Boolean emailExists = this.userService.existsUserByEmail(signUpDto.getEmail());
+		if (emailExists) {
+			return new ResponseEntity<>("Email is already taken!", HttpStatus.BAD_REQUEST);
+		}
+		UserDto newUserDto = new UserDto();
+		newUserDto.setUsername(signUpDto.getUsername());
+		newUserDto.setEmail(signUpDto.getEmail());
+		newUserDto.setPassword(signUpDto.getPassword());
+		newUserDto = this.userService.save(newUserDto);
 		return new ResponseEntity<UserDto>(newUserDto, HttpStatus.CREATED);
 	}
 	

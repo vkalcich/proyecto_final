@@ -7,4 +7,8 @@ public interface UserService {
 	UserDto findUserByUsernameOrEmail(String username, String email);
 
 	UserDto save(UserDto userDto);
+	
+	Boolean existsUserByUsername(String username);
+	
+	Boolean existsUserByEmail(String email);
 }
