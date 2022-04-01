@@ -6,8 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PageResponseBuilder<T, U> {
 	
+public class PageResponseBuilder<T, U> {
 	public PageResponse<U> createPageResponse(Page<T> page, PageResponse<U> pageResponse, List<U> lista) {
 		
 		pageResponse.setContent(lista);
