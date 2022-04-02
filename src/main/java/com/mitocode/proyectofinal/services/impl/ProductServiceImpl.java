@@ -47,9 +47,9 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public ProductDto create(ProductDto productDto) {
-		Product product = modelMapper.map(productDto, Product.class);
-		this.productRepository.save(product);
-		return this.modelMapper.map(product, ProductDto.class);
+		Product product = getModelMapper().map(productDto, Product.class);
+		Product newProduct = getProductRepository().save(product);
+		return this.modelMapper.map(newProduct, ProductDto.class);
 	}
 
 	@Override
@@ -116,7 +116,7 @@ public class ProductServiceImpl implements ProductService {
 		
 		Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy));
 		
-		Page<Product> page = this.productRepository.findAll(productSpecification.getByFilters(productDto), paging);
+		Page<Product> page = this.productRepository.findAll(getProductSpecification().getByFilters(productDto), paging);
 		
 		List<ProductDto> productsDto;
 		
@@ -127,7 +127,7 @@ public class ProductServiceImpl implements ProductService {
 					        .map(entity -> this.modelMapper.map(entity, ProductDto.class))
 					        .collect(Collectors.toList());
 			
-			pageResponseBuilder.createPageResponse(page, pageResponse, productsDto);
+			getPageResponseBuilder().createPageResponse(page, pageResponse, productsDto);
 		} else {
 			throw new ResourceNotFoundException("Product", "page", pageNumber.toString());
 		}

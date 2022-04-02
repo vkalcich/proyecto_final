@@ -69,25 +69,6 @@ public class ProductController {
 		ProductDto newProductDto = this.productService.create(productDto);
 		return new ResponseEntity<ProductDto>(newProductDto, HttpStatus.CREATED);
 	}
-	/*
-	@ApiOperation(value = "Obtiene un producto filtrando por nombre ignorando mayusculas y minusculas")
-	@GetMapping("/{name}")
-	public ResponseEntity<List<ProductDto>> findByNameIgnoreCase(@RequestParam String name) {
-		List<ProductDto> products = productService.findByNameIgnoreCase(name);
-		return new ResponseEntity<List<ProductDto>>(products, HttpStatus.OK);
-	}
-	
-	@ApiOperation(value = "Obtiene productos vencidos")
-	@GetMapping("/{dueDate}")
-	public ResponseEntity<List<ProductDto>> findBydueDate(@RequestParam String dueDate) {
-		List<ProductDto> products;
-		try {
-			 products = productService.findByDueDate(LocalDate.parse(dueDate));
-		} catch(DateTimeParseException e) {
-			return new ResponseEntity<List<ProductDto>>(new ArrayList<ProductDto>(), HttpStatus.BAD_REQUEST);
-		}
-		return new ResponseEntity<List<ProductDto>>(products, HttpStatus.OK);
-	}*/
 	
 	@ApiOperation(value = "Actualiza un producto")
 	@PutMapping
