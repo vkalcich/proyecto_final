@@ -125,7 +125,7 @@ public class UserServiceTest {
 		String username = "username";
 		when(this.userRepository.existsByUsername(username)).thenReturn(Boolean.TRUE);
 		
-		Boolean result = this.userRepository.existsByUsername(username);
+		Boolean result = this.userService.existsUserByUsername(username);
 		Assertions.assertEquals(result, Boolean.TRUE);
 	}
 	
@@ -134,7 +134,7 @@ public class UserServiceTest {
 		String username = "username";
 		when(this.userRepository.existsByUsername(username)).thenReturn(Boolean.FALSE);
 		
-		Boolean result = this.userRepository.existsByUsername(username);
+		Boolean result = this.userService.existsUserByUsername(username);
 		Assertions.assertEquals(result, Boolean.FALSE);
 	}
 	
@@ -143,7 +143,7 @@ public class UserServiceTest {
 		String email = "email";
 		when(this.userRepository.existsByEmail(email)).thenReturn(Boolean.TRUE);
 		
-		Boolean result = this.userRepository.existsByEmail(email);
+		Boolean result = this.userService.existsUserByEmail(email);
 		Assertions.assertEquals(result, Boolean.TRUE);
 	}
 	
@@ -152,7 +152,7 @@ public class UserServiceTest {
 		String email = "email";
 		when(this.userRepository.existsByEmail(email)).thenReturn(Boolean.FALSE);
 		
-		Boolean result = this.userRepository.existsByEmail(email);
+		Boolean result = this.userService.existsUserByEmail(email);
 		Assertions.assertEquals(result, Boolean.FALSE);
 	}
 }
