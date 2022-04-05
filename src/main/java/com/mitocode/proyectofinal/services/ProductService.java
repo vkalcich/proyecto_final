@@ -20,7 +20,7 @@ public interface ProductService {
 
 	List<ProductDto> findByDueDate(LocalDate dueDate);
 
-	void update(ProductDto productDto);
+	ProductDto update(ProductDto productDto);
 
 	void deleteById(Long id);
 

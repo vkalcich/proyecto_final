@@ -89,12 +89,13 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public void update(ProductDto productDto) {
+	public ProductDto update(ProductDto productDto) {
 		Optional<Product> optionalProduct = this.productRepository.findById(productDto.getId());
 		if (optionalProduct.isPresent()) {
 			Product product = optionalProduct.get();
 			product = this.modelMapper.map(productDto, Product.class);
-			this.productRepository.save(product);
+			Product updatedProduct = this.productRepository.save(product);
+			return this.modelMapper.map(updatedProduct, ProductDto.class);
 		} else {
 			throw new ResourceNotFoundException("Product", "id", productDto.getId().toString());
 		}

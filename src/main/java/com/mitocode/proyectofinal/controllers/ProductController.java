@@ -73,8 +73,8 @@ public class ProductController {
 	@ApiOperation(value = "Actualiza un producto")
 	@PutMapping
 	public ResponseEntity<ProductDto> update(@Valid @RequestBody ProductDto productDto){
-		this.productService.update(productDto);
-		return new ResponseEntity<ProductDto>(productDto, HttpStatus.OK);
+		ProductDto updatedProductDto = this.productService.update(productDto);
+		return new ResponseEntity<ProductDto>(updatedProductDto, HttpStatus.OK);
 	}
 	
 	
