@@ -33,8 +33,8 @@ public class UserServiceTest {
 	@BeforeEach
 	void setUp() {
 		userRepository = Mockito.mock(UserRepository.class);
-		modelMapper = new ModelMapper();
-		passwordEncoder = new BCryptPasswordEncoder();
+		modelMapper = Mockito.mock(ModelMapper.class);
+		passwordEncoder = Mockito.mock(BCryptPasswordEncoder.class);
 		userService = new UserServiceImpl(userRepository, modelMapper, passwordEncoder);
 	}
 	
@@ -57,14 +57,28 @@ public class UserServiceTest {
 		user.setUsername("victor");
 		user.setRoles(roles);
 		
+		RoleDto roleDto = new RoleDto();
+		roleDto.setId(1L);
+		roleDto.setName("ROLE_ADMIN");
+		
+		Set<RoleDto> rolesDto = new HashSet<RoleDto>();
+		rolesDto.add(roleDto);
+		
+		UserDto userDto = new UserDto();
+		userDto.setEmail("vkalcich@gmail.com");
+		userDto.setId(1L);
+		userDto.setPassword("password");
+		userDto.setUsername("victor");
+		userDto.setRoles(rolesDto);
+		
 		Optional<User> optional = Optional.of(user);
 		
 		when(this.userRepository.findByUsernameOrEmail(username, email)).thenReturn(optional);
+		when(this.modelMapper.map(user, UserDto.class)).thenReturn(userDto);
+		UserDto userDtoFinded = this.userService.findUserByUsernameOrEmail(username, email);
 		
-		UserDto userDto = this.userService.findUserByUsernameOrEmail(username, email);
-		
-		Assertions.assertTrue(userDto != null);
-		Assertions.assertEquals(userDto.getUsername(), username);
+		Assertions.assertTrue(userDtoFinded != null);
+		Assertions.assertEquals(userDtoFinded.getUsername(), username);
 	}
 	
 	@Test
@@ -111,8 +125,10 @@ public class UserServiceTest {
 		user.setUsername("victor");
 		user.setRoles(roles);
 		
-		
+		when(this.modelMapper.map(userDto, User.class)).thenReturn(user);
+		when(passwordEncoder.encode(userDto.getPassword())).thenReturn("passwordEncrypted");
 		when(this.userRepository.save(user)).thenReturn(user);
+		when(this.modelMapper.map(user, UserDto.class)).thenReturn(userDto);
 		
 		UserDto newUser = this.userService.save(userDto);
 		

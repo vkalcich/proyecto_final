@@ -94,7 +94,7 @@ public class ProductControllerTest {
 		
 		products.setContent(listaProductos);
 		
-		when(productService.findAll(productDto, pageNumber, pageSize, sortBy)).thenReturn(products);
+		when(productService.findAll(Mockito.any(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString())).thenReturn(products);
 		
 		ResponseEntity<PageResponse<ProductDto>> response = this.productController.findAll("", "", 0.0, LocalDate.now(), true, pageNumber, pageSize, sortBy);
 		

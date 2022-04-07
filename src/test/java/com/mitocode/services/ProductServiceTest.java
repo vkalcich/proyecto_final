@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 import com.mitocode.proyectofinal.dtos.CategoryDto;
 import com.mitocode.proyectofinal.dtos.ProductDto;
@@ -49,8 +51,8 @@ public class ProductServiceTest {
 		modelMapper = new ModelMapper();
 		modelMapper.typeMap(Product.class, ProductDto.class).addMapping(Product::getCategory, ProductDto::setCategoryDto);
 		productRepository = Mockito.mock(ProductRepository.class);
-		pageResponseBuilder = new PageResponseBuilder<>();
-		productSpecification = new ProductSpecification();
+		pageResponseBuilder = new PageResponseBuilder<Product, ProductDto>();
+		productSpecification = Mockito.mock(ProductSpecification.class);
 		productService = new ProductServiceImpl(modelMapper, productRepository, pageResponseBuilder, productSpecification);
 		
 		
@@ -352,11 +354,44 @@ public class ProductServiceTest {
 		
 		Page<Product> page = new PageImpl<Product>(listaProductos);
 		
+		ProductDto productDtoResponse = new ProductDto();
+		productDtoResponse.setId(1L);
+		productDtoResponse.setName("Prod 1");
+		productDtoResponse.setDescription("Producto 1");
+		productDtoResponse.setDueDate(LocalDate.now().plusMonths(2));
+		productDtoResponse.setEnabled(true);
+		productDtoResponse.setPrice(500.00);
+		productDtoResponse.setCategoryDto(new CategoryDto(1L, "Cat 1", "Category 1", true));
+		
+		ProductDto productDtoResponse2 = new ProductDto();
+		productDtoResponse2.setId(2L);
+		productDtoResponse2.setName("Prod 2");
+		productDtoResponse2.setDescription("Producto 2");
+		productDtoResponse2.setDueDate(LocalDate.now().plusMonths(2));
+		productDtoResponse2.setEnabled(true);
+		productDtoResponse2.setPrice(1500.00);
+		productDtoResponse2.setCategoryDto(new CategoryDto(1L, "Cat 2", "Category 2", true));
+		
+		List<ProductDto> listaProductosDto = new ArrayList<ProductDto>();
+		listaProductosDto.add(productDtoResponse);
+		listaProductosDto.add(productDtoResponse2);
+		
+		PageResponse<ProductDto> pageResponseParameter = new PageResponse<ProductDto>();
+		PageResponse<ProductDto> pageResponse = new PageResponse<ProductDto>();
+		pageResponse.setContent(listaProductosDto);
+		pageResponse.setLast(true);
+		pageResponse.setPageNo(0);
+		pageResponse.setPageSize(2);
+		pageResponse.setTotalElements(2);
+		pageResponse.setTotalPages(1);
+		
+		List<ProductDto> productsDto = new ArrayList<ProductDto>();
+		
 		when(this.productRepository.findAll(getProductSpecification().getByFilters(productDto), paging)).thenReturn(page);
 		
-		PageResponse<ProductDto> pageResponse = this.productService.findAll(productDto, 0, 5, "id");
+		PageResponse<ProductDto> finalPageResponse = this.productService.findAll(productDto, 0, 5, "id");
 		
-		Assertions.assertTrue(pageResponse != null);
-		Assertions.assertTrue(pageResponse.getContent().size() > 0);
+		Assertions.assertTrue(finalPageResponse != null);
+		Assertions.assertTrue(finalPageResponse.getContent().size() > 0);
 	}
 }

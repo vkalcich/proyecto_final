@@ -28,8 +28,8 @@ public class Product {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "id_category", referencedColumnName = "id", nullable = false, updatable = false, insertable = false)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "id_category", referencedColumnName = "id", nullable = false, updatable = false)
 	private Category category;
 	
 	@Column(length = 100, unique = true)

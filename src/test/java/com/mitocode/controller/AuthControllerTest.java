@@ -1,5 +1,6 @@
 package com.mitocode.controller;
 
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Assertions;
@@ -17,7 +18,6 @@ import com.mitocode.proyectofinal.controllers.AuthController;
 import com.mitocode.proyectofinal.dtos.AuthenticationResponse;
 import com.mitocode.proyectofinal.dtos.SignInDto;
 import com.mitocode.proyectofinal.dtos.SignUpDto;
-import com.mitocode.proyectofinal.exceptions.ResourceNotFoundException;
 import com.mitocode.proyectofinal.security.JWTUtils;
 import com.mitocode.proyectofinal.services.UserService;
 import com.mitocode.proyectofinal.services.impl.UserServiceImpl;
@@ -62,9 +62,8 @@ public class AuthControllerTest {
 		signin = new SignInDto();
 		signin.setPassword("1234");
 		signin.setUsernameOrEmail("victor");
-		Exception thrown = Assertions.assertThrows(Exception.class, () -> 
-				authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signin.getUsernameOrEmail(), signin.getPassword())));
-		
+		when(authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+				signin.getUsernameOrEmail(), signin.getPassword()))).thenThrow(BadCredentialsException.class);
 		ResponseEntity<AuthenticationResponse> response = authController.findByUsername(signin);
 		
 		Assert.isTrue(response.getStatusCode().equals(HttpStatus.FORBIDDEN));
